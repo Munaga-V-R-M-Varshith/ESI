@@ -1,0 +1,67 @@
+import fitz  # PyMuPDFC
+import re
+import os
+from openpyxl import Workbook
+
+def extract_challan_info(file_path):
+    # Open the PDF file
+    doc = fitz.open(file_path)
+    text = ""
+
+    # Extract text from all pages
+    for page in doc:
+        text += page.get_text()
+
+    # Define regex patterns to find the required information
+    challan_number_pattern = r"Challan Number :\s*(\d+)"
+    challan_period_pattern = r"Challan Period:\s*([A-Za-z0-9\s]+)"
+    amount_pattern = r"Amount Paid:\s*\$?(\d+\.\d{2})"
+    challan_submitted_date_pattern = r"Challan Submitted Date\s*([0-9]{2}-[0-9]{2}-[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2})"
+
+    challan_number_match = re.search(challan_number_pattern, text)
+    challan_period_match = re.search(challan_period_pattern, text)
+    amount_match = re.search(amount_pattern, text)
+    challan_submitted_date_match = re.search(challan_submitted_date_pattern, text)
+
+    challan_number = challan_number_match.group(1) if challan_number_match else None
+    challan_period = challan_period_match.group(1) if challan_period_match else None
+    amount = amount_match.group(1) if amount_match else None
+    challan_submitted_date = challan_submitted_date_match.group(1) if challan_submitted_date_match else None
+
+    return challan_number, challan_period, amount, challan_submitted_date
+
+def list_pdfs_and_info(directory):
+    results = []
+
+    # List all PDF files in the directory
+    pdf_files = [f for f in os.listdir(directory) if f.endswith('.pdf')]
+
+    for pdf_file in pdf_files:
+        file_path = os.path.join(directory, pdf_file)
+        challan_number, challan_period, amount, challan_submitted_date = extract_challan_info(file_path)
+        results.append((pdf_file, challan_number, challan_period, amount, challan_submitted_date))
+
+    return results
+
+def save_to_excel(data, output_path):
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Challan Info"
+
+    # Add headers
+    sheet.append(["PDF File", "Challan Number ", "Challan Period", "Amount Paid", "Challan Submitted Date"])
+
+    # Add data
+    for row in data:
+        sheet.append(row)
+
+# Directory containing the PDF files
+pdf_directory = 'D:\Period\MAY'  # Update this path to your PDF directory
+
+# Get the list of PDF files and their information
+pdf_results = list_pdfs_and_info(pdf_directory)
+
+
+# Print the PDF file names and the extracted information
+for pdf_file, challan_number, challan_period, amount, challan_submitted_date in pdf_results:
+    print(f"PDF File: {pdf_file}, Challan Number: {challan_number}, Challan Period: {challan_period}, Amount Paid: {amount}, Challan Submitted Date {challan_submitted_date}")
