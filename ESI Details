@@ -65,7 +65,7 @@ pdf_results = list_pdfs_and_info(pdf_directory)
 # Print the PDF file names and the extracted information
 for pdf_file, challan_number, challan_period, amount, challan_submitted_date in pdf_results:
     print(f"PDF File: {pdf_file}, Challan Number: {challan_number}, Challan Period: {challan_period}, Amount Paid: {amount}, Challan Submitted Date {challan_submitted_date}")
-# Copyright (c) 2024 Your Name
+# Copyright (c) 2025 Munaga V R M Varshith
 # All rights reserved.
 #
 # Licensed under the MIT License. See the LICENSE file for details.
